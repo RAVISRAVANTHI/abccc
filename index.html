@@ -1,41 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculator App</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculator App</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    .menu-icon {
+      font-size: 24px;
+      cursor: pointer;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 50px;
+      right: 20px;
+      background-color: white;
+      border: 1px solid #ddd;
+      padding: 10px;
+      z-index: 1000;
+    }
+
+    .panel {
+      position: absolute;
+      top: 100px;
+      right: 20px;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 20px;
+      width: 250px;
+      z-index: 1000;
+    }
+
+    textarea {
+      width: 100%;
+      height: 80px;
+    }
+
+    .app-container {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+    }
+  </style>
 </head>
 <body class="bg-light d-flex justify-content-center align-items-center vh-100">
-    <div class="calculator card shadow p-4">
-        <input type="text" id="display" class="form-control mb-3 text-end" disabled>
-        <div class="buttons row g-2">
-            <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('7')">7</button></div>
-            <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('8')">8</button></div>
-            <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('9')">9</button></div>
-            <div class="col-3"><button class="btn btn-success w-100" onclick="appendValue('/')">/</button></div>
 
-            <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('4')">4</button></div>
-            <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('5')">5</button></div>
-            <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('6')">6</button></div>
-            <div class="col-3"><button class="btn btn-success w-100" onclick="appendValue('*')">*</button></div>
+<div class="app-container">
+  
+  <!-- Settings Panel -->
+  <div class="menu-icon" onclick="toggleMenu()">&#8942;</div>
 
-            <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('1')">1</button></div>
-            <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('2')">2</button></div>
-            <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('3')">3</button></div>
-            <div class="col-3"><button class="btn btn-success w-100" onclick="appendValue('-')">-</button></div>
+  <div id="dropdownMenu" class="dropdown-menu" style="display: none;">
+    <button onclick="openPanel('themePanel')">Theme</button><br>
+    <button onclick="copyResult()">Copy Output 📋</button><br>
+    <button onclick="openPanel('historyPanel')">History</button><br>
+    <button onclick="openPanel('feedbackPanel')">Feedback</button>
+  </div>
 
-            <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('0')">0</button></div>
-            <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('.')">.</button></div>
-            <div class="col-3"><button class="btn btn-danger w-100" onclick="clearDisplay()">C</button></div>
-            <div class="col-3"><button class="btn btn-success w-100" onclick="appendValue('+')">+</button></div>
+  <div id="themePanel" class="panel" style="display: none;">
+    <button onclick="goBack()">← Back</button>
+    <h2>Theme</h2>
+    <select id="themeSelector" onchange="changeTheme()">
+      <option value="dark">Dark</option>
+      <option value="light">Light</option>
+      <option value="neon">Neon</option>
+      <option value="classic">Classic</option>
+    </select>
+  </div>
 
-            <div class="col-12"><button class="btn btn-warning w-100" onclick="calculateResult()">=</button></div>
-        </div>
+  <div id="historyPanel" class="panel" style="display: none;">
+    <button onclick="goBack()">← Back</button>
+    <h2>History</h2>
+    <ul id="historyList"></ul>
+    <button onclick="clearHistory()">Clear All History</button>
+  </div>
+
+  <div id="feedbackPanel" class="panel" style="display: none;">
+    <button onclick="goBack()">← Back</button>
+    <h2>Feedback</h2>
+    <textarea id="feedbackInput" placeholder="Your feedback..."></textarea>
+    <button onclick="sendFeedback()">Send</button>
+    <div id="feedbackStatus"></div>
+  </div>
+
+  <!-- Calculator -->
+  <div class="calculator card shadow p-4 mt-4">
+    <input type="text" id="display" class="form-control mb-3 text-end" disabled />
+    <div class="buttons row g-2">
+      <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('7')">7</button></div>
+      <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('8')">8</button></div>
+      <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('9')">9</button></div>
+      <div class="col-3"><button class="btn btn-success w-100" onclick="appendValue('/')">/</button></div>
+
+      <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('4')">4</button></div>
+      <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('5')">5</button></div>
+      <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('6')">6</button></div>
+      <div class="col-3"><button class="btn btn-success w-100" onclick="appendValue('*')">*</button></div>
+
+      <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('1')">1</button></div>
+      <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('2')">2</button></div>
+      <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('3')">3</button></div>
+      <div class="col-3"><button class="btn btn-success w-100" onclick="appendValue('-')">-</button></div>
+
+      <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('0')">0</button></div>
+      <div class="col-3"><button class="btn btn-primary w-100" onclick="appendValue('.')">.</button></div>
+      <div class="col-3"><button class="btn btn-danger w-100" onclick="clearDisplay()">C</button></div>
+      <div class="col-3"><button class="btn btn-success w-100" onclick="appendValue('+')">+</button></div>
+
+      <div class="col-12"><button class="btn btn-warning w-100" onclick="calculateResult()">=</button></div>
     </div>
+  </div>
 
-     <script src="script.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</div>
+
+<script>
+  const display = document.getElementById('display');
+  const historyList = document.getElementById('historyList');
+  let history = [];
+
+  function appendValue(value) {
+    display.value += value;
+  }
+
+  function clearDisplay() {
+    display.value = '';
+  }
+
+  function calculateResult() {
+    try {
+      const result = eval(display.value);
+      history.push(display.value + ' = ' + result);
+      updateHistory();
+      display.value = result;
+    } catch {
+      display.value = 'Error';
+    }
+  }
+
+  function toggleMenu() {
+    const menu = document.getElementById('dropdownMenu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function openPanel(panelId) {
+    document.getElementById('dropdownMenu').style.display = 'none';
+    ['themePanel', 'historyPanel', 'feedbackPanel'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+    document.getElementById(panelId).style.display = 'block';
+  }
+
+  function goBack() {
+    ['themePanel', 'historyPanel', 'feedbackPanel'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+  }
+
+  function updateHistory() {
+    historyList.innerHTML = '';
+    history.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item;
+      historyList.appendChild(li);
+    });
+  }
+
+  function clearHistory() {
+    history = [];
+    updateHistory();
+  }
+
+  function copyResult() {
+    navigator.clipboard.writeText(display.value)
+      .then(() => alert('Copied to clipboard!'))
+      .catch(() => alert('Copy failed'));
+  }
+
+  function sendFeedback() {
+    const feedback = document.getElementById('feedbackInput').value;
+    const status = document.getElementById('feedbackStatus');
+    if (feedback.trim()) {
+      status.textContent = "Feedback sent! ✅";
+      setTimeout(() => {
+        status.textContent = '';
+        document.getElementById('feedbackInput').value = '';
+      }, 2000);
+    } else {
+      status.textContent = "Please enter feedback!";
+    }
+  }
+
+  function changeTheme() {
+    const theme = document.getElementById('themeSelector').value;
+    document.body.className = ''; // Reset theme
+    document.body.classList.add(`theme-${theme}`);
+  }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 
